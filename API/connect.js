@@ -9,15 +9,22 @@ const appid = process.env.APPID_WELINK;
 const appsecret = process.env.APPSECRET_WELINK;
 const deviceID = '1000ba1e43';
 
-
-(async () => {
-    const connection = await new ewelink({
+async function createConnection() {
+    return await new ewelink({
         email: email,
         password: password,
         region: region,
         APP_ID: appid,
         APP_SECRET: appsecret
     });
+}
+
+async function changeSwitch(connection, Luz) {
+    await connection.setDevicePowerState(deviceID, 'toggle', Luz);
+}
+(async () => {
+
+    const connection = await createConnection();
 
     // Acende ou apaga a luz
     const Luz = {
@@ -25,7 +32,8 @@ const deviceID = '1000ba1e43';
         'Armário': '2',
         'Janela': '3'
     }
-    const changeSwitch = await connection.setDevicePowerState(deviceID, 'toggle', Luz.Armário);
+
+    await changeSwitch(connection, Luz.Central)
 
 
     // Retorna Status das Luzes
