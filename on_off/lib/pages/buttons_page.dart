@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class ButtomPage extends StatefulWidget {
   const ButtomPage({super.key});
@@ -8,6 +9,13 @@ class ButtomPage extends StatefulWidget {
 }
 
 class _ButtomPageState extends State<ButtomPage> {
+  Future<void> changeSwitch() async {
+    final response = await http.get(Uri.parse(
+      'http://192.168.0.209:7777/toggle/Armario'
+    ));
+    print(response.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,7 +23,7 @@ class _ButtomPageState extends State<ButtomPage> {
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         child: ElevatedButton(
-            onPressed: () {}, child: Icon(Icons.lightbulb_outlined)),
+            onPressed: () async { await changeSwitch();}, child: Icon(Icons.lightbulb_outlined)),
       ),
     );
   }
