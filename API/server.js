@@ -24,6 +24,18 @@ app.get('/toggle/:light', async (req, res) => {
 
 });
 
+app.get('/status/:device', async (req, res) => {
+    const device = req.params.device;
+    const connection = await createConnection()
+
+
+    let status = await connection.getDevice(device)
+    status = status.params.switches
+    statusRemove = status.pop()
+
+    res.json(status)
+})
+
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 });
