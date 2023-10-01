@@ -1,5 +1,5 @@
 const express = require ('express');
-const {createConnection, changeSwitch} = require('./connect');
+const {createConnection, changeSwitch, deviceID} = require('./connect');
 
 const app = express();
 const port = 7777;
@@ -16,6 +16,11 @@ app.get('/toggle/:light', async (req, res) => {
 
     await changeSwitch(connection, Luz, light)
 
+    let status = await connection.getDevice(deviceID)
+    status = status.params.switches
+    statusRemove = status.pop()
+    
+    res.json(status)
 
 });
 

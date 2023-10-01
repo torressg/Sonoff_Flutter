@@ -73,4 +73,4 @@ async function changeSwitch(connection, Luz, light) {
 //     */
 // })();
 
-module.exports = {createConnection, changeSwitch}
+module.exports = {createConnection, changeSwitch, deviceID}
