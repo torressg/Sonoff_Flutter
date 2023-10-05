@@ -1,5 +1,5 @@
-const express = require ('express');
-const {createConnection, changeSwitch, deviceID} = require('./connect');
+const express = require('express');
+const { createConnection, changeSwitch, deviceID } = require('./connect');
 
 const app = express();
 const port = 7777;
@@ -19,7 +19,7 @@ app.get('/toggle/:light', async (req, res) => {
     let status = await connection.getDevice(deviceID)
     status = status.params.switches
     statusRemove = status.pop()
-    
+
     res.json(status)
 
 });
@@ -31,6 +31,15 @@ app.get('/status/:device', async (req, res) => {
 
     let status = await connection.getDevice(device)
     status = status.params.switches
+    status.forEach((item) => {
+        if (item.outlet === 0) {
+            item.Nome = "Central";
+        } else if(item.outlet === 1) {
+            item.Nome = "Armário"
+        } else if(item.outlet===2) {
+            item.Nome = "Janela"
+        }
+    })
     statusRemove = status.pop()
 
     res.json(status)

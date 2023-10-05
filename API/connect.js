@@ -39,30 +39,35 @@ async function changeSwitch(connection, Luz, light) {
 
 //     // Retorna Status das Luzes
 //     let status = await connection.getDevice(deviceID)
-//     status = status.params.switches
-//     status.forEach((OnOrOff) => {
-//         if (OnOrOff.outlet == '0') {
-//             if (OnOrOff.switch == 'on') {
-//                 console.log('Luz Central está ligada.')
-//             } else {
-//                 console.log('Luz Central está desligada.')
-//             }
-//         } else if (OnOrOff.outlet == '1') {
-//             if (OnOrOff.switch == 'on') {
-//                 console.log('Luz Armário está ligada.')
-//             } else {
-//                 console.log('Luz Armário está desligada.')
-//             }
-//         } else if (OnOrOff.outlet == '2') {
-//             if (OnOrOff.switch == 'on') {
-//                 console.log('Luz Janela está ligada.')
-//             } else {
-//                 console.log('Luz Janela está desligada.')
-//             }
-//         } else {
+//     console.log(status)
 
-//         }
-//     });
+//     status = status.params.switches
+//     console.log(status)
+
+
+//     // status.forEach((OnOrOff) => {
+//     //     if (OnOrOff.outlet == '0') {
+//     //         if (OnOrOff.switch == 'on') {
+//     //             console.log('Luz Central está ligada.')
+//     //         } else {
+//     //             console.log('Luz Central está desligada.')
+//     //         }
+//     //     } else if (OnOrOff.outlet == '1') {
+//     //         if (OnOrOff.switch == 'on') {
+//     //             console.log('Luz Armário está ligada.')
+//     //         } else {
+//     //             console.log('Luz Armário está desligada.')
+//     //         }
+//     //     } else if (OnOrOff.outlet == '2') {
+//     //         if (OnOrOff.switch == 'on') {
+//     //             console.log('Luz Janela está ligada.')
+//     //         } else {
+//     //             console.log('Luz Janela está desligada.')
+//     //         }
+//     //     } else {
+
+//     //     }
+//     // });
 //     /*
 //     swiches:  [
 //         { switch: 'on', outlet: 0 }, central
