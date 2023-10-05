@@ -30,7 +30,7 @@ app.get('/status/:device', async (req, res) => {
 
 
     let status = await connection.getDevice(device)
-    status = status.params.switches
+    status = await status.params.switches
     status.forEach((item) => {
         if (item.outlet === 0) {
             item.Nome = "Central";
