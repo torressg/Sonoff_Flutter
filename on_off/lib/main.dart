@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:on_off/pages/buttons_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: "lib/constants/.env");
   runApp(const MainApp());
 }
 
@@ -10,9 +12,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(primaryColor: Colors.grey[900]),
-      home: ButtomPage()
-    );
+    return MaterialApp(home: ButtomPage());
   }
 }

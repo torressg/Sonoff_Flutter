@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:on_off/constants/AppColors.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ButtomPage extends StatefulWidget {
   const ButtomPage({super.key});
@@ -17,15 +19,15 @@ class _ButtomPageState extends State<ButtomPage> {
 
   // Call API to turn ON/OFF
   Future<void> changeSwitch(light) async {
-    final responseChange =
-        await http.get(Uri.parse('http://192.168.0.209:7777/toggle/$light'));
+    final responseChange = await http
+        .get(Uri.parse('http://${dotenv.env['IP']}:7777/toggle/$light'));
     print('http://192.168.0.209:7777/toggle/$light');
   }
 
   // Call API to get Quantity
   Future<void> qttSwitch() async {
     final response = await http
-        .get(Uri.parse('http://192.168.0.209:7777/1000ba1e43/quantity'));
+        .get(Uri.parse('http://${dotenv.env['IP']}:7777/1000ba1e43/quantity'));
     if (response.statusCode == 200) {
       setState(() {
         responseQtt = int.parse(response.body);
@@ -38,7 +40,7 @@ class _ButtomPageState extends State<ButtomPage> {
   // Call API to get characteristics about Device
   Future<void> aboutDevice() async {
     final responseName = await http
-        .get(Uri.parse('http://192.168.0.209:7777/status/1000ba1e43'));
+        .get(Uri.parse('http://${dotenv.env['IP']}:7777/status/1000ba1e43'));
     if (responseName.statusCode == 200) {
       var decodeResponse = jsonDecode(responseName.body) as List;
       setState(() {
@@ -56,20 +58,25 @@ class _ButtomPageState extends State<ButtomPage> {
   @override
   initState() {
     super.initState();
-    print(myJsonList);
     aboutDevice();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.secBackgroundColor,
       appBar: AppBar(
+        backgroundColor: AppColors.backgroundColor,
         title: const Text('On | Off'),
       ),
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
         child: responseQtt == 0
-            ? Center(child: CircularProgressIndicator(),) 
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryColor,
+                ),
+              )
             : GridView.builder(
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 200,
@@ -79,7 +86,10 @@ class _ButtomPageState extends State<ButtomPage> {
                 itemCount: responseQtt,
                 itemBuilder: (BuildContext ctx, index) {
                   return ElevatedButton(
-                    onPressed: () {
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            AppColors.primaryColor)),
+                    onPressed: () async {
                       setState(() {
                         changeSwitch(
                             (nameLight[index]).replaceAll(RegExp('á'), 'a'));
