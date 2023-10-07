@@ -16,6 +16,7 @@ class _ButtomPageState extends State<ButtomPage> {
   List<bool> lightIsOn = [false, false, false];
   List<String> nameLight = [];
   int responseQtt = 0;
+  List<String> statusSwitches = [];
 
   // Call API to turn ON/OFF
   Future<void> changeSwitch(light) async {
@@ -49,6 +50,9 @@ class _ButtomPageState extends State<ButtomPage> {
             decodeResponse.map((item) => item['Nome'] as String).toList();
         // Getting switches quantity
         responseQtt = decodeResponse.length;
+        // Getting status switches
+        statusSwitches =
+            decodeResponse.map((item) => item['switch'] as String).toList();
       });
     } else {
       print('Failed to load data. Status code: ${responseName.statusCode}');
@@ -90,10 +94,14 @@ class _ButtomPageState extends State<ButtomPage> {
                         backgroundColor: MaterialStateProperty.all<Color>(
                             AppColors.primaryColor)),
                     onPressed: () async {
+                      await changeSwitch(
+                          (nameLight[index]).replaceAll(RegExp('á'), 'a'));
                       setState(() {
-                        changeSwitch(
-                            (nameLight[index]).replaceAll(RegExp('á'), 'a'));
-                        lightIsOn[index] = !lightIsOn[index];
+                        if (statusSwitches[index] == 'on') {
+                          statusSwitches[index] = 'off';
+                        } else if (statusSwitches[index] == 'off') {
+                          statusSwitches[index] = 'on';
+                        }
                       });
                     },
                     child: Column(
@@ -101,7 +109,7 @@ class _ButtomPageState extends State<ButtomPage> {
                       children: [
                         Container(
                           alignment: Alignment.center,
-                          child: lightIsOn[index]
+                          child: statusSwitches[index] == 'on'
                               ? Icon(size: 50, Icons.lightbulb)
                               : Icon(size: 50, Icons.lightbulb_outlined),
                         ),
