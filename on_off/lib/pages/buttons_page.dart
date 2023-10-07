@@ -16,9 +16,10 @@ class _ButtomPageState extends State<ButtomPage> {
   int responseQtt = 0;
 
   // Call API to turn ON/OFF
-  Future<void> changeSwitch() async {
+  Future<void> changeSwitch(light) async {
     final responseChange =
-        await http.get(Uri.parse('http://192.168.0.209:7777/toggle/Armario'));
+        await http.get(Uri.parse('http://192.168.0.209:7777/toggle/$light'));
+    print('http://192.168.0.209:7777/toggle/$light');
   }
 
   // Call API to get Quantity
@@ -42,8 +43,9 @@ class _ButtomPageState extends State<ButtomPage> {
       var decodeResponse = jsonDecode(responseName.body) as List;
       setState(() {
         // Getting name os switches
-        nameLight = decodeResponse.map((item) => item['Nome'] as String).toList();
-        //Getting switches quantity 
+        nameLight =
+            decodeResponse.map((item) => item['Nome'] as String).toList();
+        // Getting switches quantity
         responseQtt = decodeResponse.length;
       });
     } else {
@@ -54,6 +56,7 @@ class _ButtomPageState extends State<ButtomPage> {
   @override
   initState() {
     super.initState();
+    print(myJsonList);
     aboutDevice();
   }
 
@@ -65,11 +68,9 @@ class _ButtomPageState extends State<ButtomPage> {
       ),
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-        child:
-            // myJsonList?.length == 0
-            //     ? CircularProgressIndicator()
-            //     :
-            GridView.builder(
+        child: responseQtt == 0
+            ? Center(child: CircularProgressIndicator(),) 
+            : GridView.builder(
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 200,
                     childAspectRatio: 3 / 2,
@@ -80,7 +81,8 @@ class _ButtomPageState extends State<ButtomPage> {
                   return ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        // changeSwitch();
+                        changeSwitch(
+                            (nameLight[index]).replaceAll(RegExp('á'), 'a'));
                         lightIsOn[index] = !lightIsOn[index];
                       });
                     },
