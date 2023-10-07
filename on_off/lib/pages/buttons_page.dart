@@ -122,7 +122,22 @@ class _ButtomPageState extends State<ButtomPage> {
                             'Luz ' + nameLight[index],
                             style: TextStyle(fontSize: 15),
                           ),
-                        )
+                        ),
+                        SizedBox(
+                          height: 3,
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          child: statusSwitches[index] == 'on'
+                              ? Text(
+                                  'Ativada',
+                                  style: TextStyle(fontSize: 10),
+                                )
+                              : Text(
+                                  'Desativada',
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                        ),
                       ],
                     ),
                   );
