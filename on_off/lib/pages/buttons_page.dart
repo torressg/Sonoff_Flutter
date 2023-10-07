@@ -22,13 +22,13 @@ class _ButtomPageState extends State<ButtomPage> {
   Future<void> changeSwitch(light) async {
     final responseChange = await http
         .get(Uri.parse('http://${dotenv.env['IP']}:7777/toggle/$light'));
-    print('http://192.168.0.209:7777/toggle/$light');
   }
 
   // Call API to get Quantity
   Future<void> qttSwitch() async {
     final response = await http
         .get(Uri.parse('http://${dotenv.env['IP']}:7777/1000ba1e43/quantity'));
+    await Future.delayed(Duration(seconds: 2));
     if (response.statusCode == 200) {
       setState(() {
         responseQtt = int.parse(response.body);
@@ -59,6 +59,8 @@ class _ButtomPageState extends State<ButtomPage> {
     }
   }
 
+  Future<void> refreshList() => qttSwitch();
+
   @override
   initState() {
     super.initState();
@@ -73,75 +75,83 @@ class _ButtomPageState extends State<ButtomPage> {
         backgroundColor: AppColors.backgroundColor,
         title: const Text('On | Off'),
       ),
-      body: Container(
-        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-        child: responseQtt == 0
-            ? Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.primaryColor,
-                ),
-              )
-            : GridView.builder(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 200,
-                    childAspectRatio: 3 / 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10),
-                itemCount: responseQtt,
-                itemBuilder: (BuildContext ctx, index) {
-                  return ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            AppColors.primaryColor)),
-                    onPressed: () async {
-                      await changeSwitch(
-                          (nameLight[index]).replaceAll(RegExp('á'), 'a'));
-                      setState(() {
-                        if (statusSwitches[index] == 'on') {
-                          statusSwitches[index] = 'off';
-                        } else if (statusSwitches[index] == 'off') {
-                          statusSwitches[index] = 'on';
-                        }
-                      });
-                    },
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          child: statusSwitches[index] == 'on'
-                              ? Icon(size: 50, Icons.lightbulb)
-                              : Icon(size: 50, Icons.lightbulb_outlined),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Luz ' + nameLight[index],
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 3,
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          child: statusSwitches[index] == 'on'
-                              ? Text(
-                                  'Ativada',
-                                  style: TextStyle(fontSize: 10),
-                                )
-                              : Text(
-                                  'Desativada',
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                        ),
-                      ],
+      body: RefreshIndicator(
+        color: AppColors.primaryColor,
+        backgroundColor: AppColors.backgroundColor,
+        onRefresh: aboutDevice,
+        child: Center(
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            child: responseQtt == 0
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
                     ),
-                  );
-                }),
+                  )
+                : GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 200,
+                            childAspectRatio: 3 / 2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10),
+                    itemCount: responseQtt,
+                    itemBuilder: (BuildContext ctx, index) {
+                      return ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                AppColors.primaryColor)),
+                        onPressed: () async {
+                          await changeSwitch(
+                              (nameLight[index]).replaceAll(RegExp('á'), 'a'));
+                          setState(() {
+                            if (statusSwitches[index] == 'on') {
+                              statusSwitches[index] = 'off';
+                            } else if (statusSwitches[index] == 'off') {
+                              statusSwitches[index] = 'on';
+                            }
+                          });
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              child: statusSwitches[index] == 'on'
+                                  ? Icon(size: 50, Icons.lightbulb)
+                                  : Icon(size: 50, Icons.lightbulb_outlined),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Luz ' + nameLight[index],
+                                style: TextStyle(fontSize: 15),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 3,
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              child: statusSwitches[index] == 'on'
+                                  ? Text(
+                                      'Ativada',
+                                      style: TextStyle(fontSize: 10),
+                                    )
+                                  : Text(
+                                      'Desativada',
+                                      style: TextStyle(fontSize: 10),
+                                    ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+          ),
+        ),
       ),
     );
   }
