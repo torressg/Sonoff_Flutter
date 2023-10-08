@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -22,21 +24,30 @@ class _ButtomPageState extends State<ButtomPage> {
 
   // Call API to turn ON/OFF
   Future<void> changeSwitch(light) async {
-    final responseChange = await http
-        .get(Uri.parse('http://${dotenv.env['IP']}:7777/toggle/$light'));
+    try {
+      final responseChange = await http
+          .get(Uri.parse('http://${dotenv.env['IP']}:7777/toggle/$light'));
+      if (responseChange.statusCode != 200) {
+        print(
+            'Erro ao se comunicar com o servidor. Status code: ${responseChange.statusCode}');
+      }
+    } catch (e) {
+      print('Ocorreu um erro: $e');
+    }
   }
 
   // Call API to get Quantity
   Future<void> qttSwitch() async {
     final response = await http
         .get(Uri.parse('http://${dotenv.env['IP']}:7777/1000ba1e43/quantity'));
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
     if (response.statusCode == 200) {
       setState(() {
         responseQtt = int.parse(response.body);
       });
     } else {
-      print('Failed to load data. Status code: ${response.statusCode}');
+      print(
+          'Erro ao se comunicar com o servidor. Status code: ${response.statusCode}');
     }
   }
 
@@ -45,7 +56,7 @@ class _ButtomPageState extends State<ButtomPage> {
     try {
       final responseName = await http
           .get(Uri.parse('http://${dotenv.env['IP']}:7777/status/1000ba1e43'))
-          .timeout(Duration(seconds: 7));
+          .timeout(const Duration(seconds: 7));
       if (responseName.statusCode == 200) {
         var decodeResponse = jsonDecode(responseName.body) as List;
         setState(() {
@@ -59,15 +70,16 @@ class _ButtomPageState extends State<ButtomPage> {
               decodeResponse.map((item) => item['switch'] as String).toList();
         });
       } else {
-        print('Failed to load data. Status code: ${responseName.statusCode}');
+        print(
+            'Erro ao se comunicar com o servidor. Status code: ${responseName.statusCode}');
       }
     } on TimeoutException catch (e) {
       errorLoad = true;
       responseQtt = 0;
-      print('caiu');
+      print('Ocorreu um erro: $e');
       setState(() {});
     } catch (e) {
-      print('erro');
+      print('Ocorreu um erro: $e');
     }
   }
 
@@ -93,44 +105,42 @@ class _ButtomPageState extends State<ButtomPage> {
         onRefresh: aboutDevice,
         child: Center(
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
             child: errorLoad
-                ? Container(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Ocorreu um erro para se conectar.",
-                          style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
-                        ),
-                        SizedBox(height: 5),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              errorLoad = false;
-                            });
-                            aboutDevice();
-                          },
-                          child: Container(
-                              height: 30,
-                              width: 120,
-                              alignment: Alignment.center,
-                              child: Text(
-                                "Tentar novamente",
-                                style: TextStyle(fontSize: 14),
-                              )),
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  AppColors.primaryColor)),
-                        )
-                      ],
-                    ),
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Ocorreu um erro para se conectar.",
+                        style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                      const SizedBox(height: 5),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            errorLoad = false;
+                          });
+                          aboutDevice();
+                        },
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                AppColors.primaryColor)),
+                        child: Container(
+                            height: 30,
+                            width: 120,
+                            alignment: Alignment.center,
+                            child: const Text(
+                              "Tentar novamente",
+                              style: TextStyle(fontSize: 14),
+                            )),
+                      )
+                    ],
                   )
                 : responseQtt == 0
-                    ? Center(
+                    ? const Center(
                         child: CircularProgressIndicator(
                           color: AppColors.primaryColor,
                         ),
@@ -150,15 +160,25 @@ class _ButtomPageState extends State<ButtomPage> {
                                     MaterialStateProperty.all<Color>(
                                         AppColors.primaryColor)),
                             onPressed: () async {
-                              await changeSwitch((nameLight[index])
-                                  .replaceAll(RegExp('á'), 'a'));
-                              setState(() {
-                                if (statusSwitches[index] == 'on') {
-                                  statusSwitches[index] = 'off';
-                                } else if (statusSwitches[index] == 'off') {
-                                  statusSwitches[index] = 'on';
-                                }
-                              });
+                              try {
+                                await changeSwitch((nameLight[index])
+                                  .replaceAll(RegExp('á'), 'a')).timeout(const Duration(seconds: 7));
+                                setState(() {
+                                  if (statusSwitches[index] == 'on') {
+                                    statusSwitches[index] = 'off';
+                                  } else if (statusSwitches[index] == 'off') {
+                                    statusSwitches[index] = 'on';
+                                  }
+                                });
+                              } on TimeoutException catch (e) {
+                                print('Ocorreu um erro: $e');
+                                final snackBar = SnackBar(
+                                  content: Text('Ocorreu um erro, tente novamente ou recarregue a página.'),
+                                  duration: Duration(seconds: 2),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                
+                              }
                             },
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -166,31 +186,31 @@ class _ButtomPageState extends State<ButtomPage> {
                                 Container(
                                   alignment: Alignment.center,
                                   child: statusSwitches[index] == 'on'
-                                      ? Icon(size: 50, Icons.lightbulb)
-                                      : Icon(
+                                      ? const Icon(size: 50, Icons.lightbulb)
+                                      : const Icon(
                                           size: 50, Icons.lightbulb_outlined),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 5,
                                 ),
                                 Container(
                                   alignment: Alignment.center,
                                   child: Text(
-                                    'Luz ' + nameLight[index],
-                                    style: TextStyle(fontSize: 15),
+                                    'Luz ${nameLight[index]}',
+                                    style: const TextStyle(fontSize: 15),
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 3,
                                 ),
                                 Container(
                                   alignment: Alignment.center,
                                   child: statusSwitches[index] == 'on'
-                                      ? Text(
+                                      ? const Text(
                                           'Ativada',
                                           style: TextStyle(fontSize: 10),
                                         )
-                                      : Text(
+                                      : const Text(
                                           'Desativada',
                                           style: TextStyle(fontSize: 10),
                                         ),
