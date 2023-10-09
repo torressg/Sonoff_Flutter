@@ -31,43 +31,11 @@ class _ButtomPageState extends State<ButtomPage> {
 
   // Call API to get characteristics about Device
   Future<void> aboutDevice() async {
-    try {
-      final responseName = await http
-          .get(Uri.parse('http://${dotenv.env['IP']}:7777/status/1000ba1e43'))
-          .timeout(const Duration(seconds: 7));
-      if (responseName.statusCode == 200) {
-        var decodeResponse = jsonDecode(responseName.body) as List;
-        setState(() {
-          // Getting name os switches
-          nameLight =
-              decodeResponse.map((item) => item['Nome'] as String).toList();
-          // Getting switches quantity
-          responseQtt = decodeResponse.length;
-          // Getting status switches
-          statusSwitches =
-              decodeResponse.map((item) => item['switch'] as String).toList();
-        });
-      } else {
-        print(
-            'Erro ao se comunicar com o servidor. Status code: ${responseName.statusCode}');
-      }
-    } on TimeoutException catch (e) {
-      errorLoad = true;
-      responseQtt = 0;
-      print('Ocorreu um erro: $e');
-      setState(() {});
-    } catch (e) {
-      print('Ocorreu um erro: $e');
-    }
-  }
-
-  Future<void> aboutDevice2() async {
     final response = await apiRepository.aboutDevice();
     if (response.isNotEmpty) {
       setState(() {
         // Getting name os switches
-        nameLight =
-            response.map((item) => item['Nome'] as String).toList();
+        nameLight = response.map((item) => item['Nome'] as String).toList();
         // Getting switches quantity
         responseQtt = response.length;
         // Getting status switches
