@@ -21,6 +21,6 @@ class MainApp extends StatelessWidget {
             secondary: AppColors.primaryColor,
           ),
         ),
-        home: ButtomPage());
+        home: const ButtomPage());
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:on_off/constants/AppColors.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:on_off/repositories/api_repository.dart';
 
 class ButtomPage extends StatefulWidget {
   const ButtomPage({super.key});
@@ -15,6 +16,7 @@ class ButtomPage extends StatefulWidget {
 }
 
 class _ButtomPageState extends State<ButtomPage> {
+  final apiRepository = ApiRepository();
   List<dynamic>? myJsonList;
   List<bool> lightIsOn = [false, false, false];
   List<String> nameLight = [];
@@ -24,31 +26,7 @@ class _ButtomPageState extends State<ButtomPage> {
 
   // Call API to turn ON/OFF
   Future<void> changeSwitch(light) async {
-    try {
-      final responseChange = await http
-          .get(Uri.parse('http://${dotenv.env['IP']}:7777/toggle/$light'));
-      if (responseChange.statusCode != 200) {
-        print(
-            'Erro ao se comunicar com o servidor. Status code: ${responseChange.statusCode}');
-      }
-    } catch (e) {
-      print('Ocorreu um erro: $e');
-    }
-  }
-
-  // Call API to get Quantity
-  Future<void> qttSwitch() async {
-    final response = await http
-        .get(Uri.parse('http://${dotenv.env['IP']}:7777/1000ba1e43/quantity'));
-    await Future.delayed(const Duration(seconds: 2));
-    if (response.statusCode == 200) {
-      setState(() {
-        responseQtt = int.parse(response.body);
-      });
-    } else {
-      print(
-          'Erro ao se comunicar com o servidor. Status code: ${response.statusCode}');
-    }
+    await apiRepository.changeSwitch(light);
   }
 
   // Call API to get characteristics about Device
@@ -83,7 +61,28 @@ class _ButtomPageState extends State<ButtomPage> {
     }
   }
 
-  Future<void> refreshList() => qttSwitch();
+  Future<void> aboutDevice2() async {
+    final response = await apiRepository.aboutDevice();
+    if (response.isNotEmpty) {
+      setState(() {
+        // Getting name os switches
+        nameLight =
+            response.map((item) => item['Nome'] as String).toList();
+        // Getting switches quantity
+        responseQtt = response.length;
+        // Getting status switches
+        statusSwitches =
+            response.map((item) => item['switch'] as String).toList();
+      });
+    } else {
+      setState(() {
+        errorLoad = true;
+        responseQtt = 0;
+      });
+    }
+  }
+
+  Future<void> refreshList() => aboutDevice();
 
   @override
   initState() {
@@ -102,7 +101,7 @@ class _ButtomPageState extends State<ButtomPage> {
       body: RefreshIndicator(
         color: AppColors.primaryColor,
         backgroundColor: AppColors.backgroundColor,
-        onRefresh: aboutDevice,
+        onRefresh: refreshList,
         child: Center(
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
@@ -162,7 +161,8 @@ class _ButtomPageState extends State<ButtomPage> {
                             onPressed: () async {
                               try {
                                 await changeSwitch((nameLight[index])
-                                  .replaceAll(RegExp('á'), 'a')).timeout(const Duration(seconds: 7));
+                                        .replaceAll(RegExp('á'), 'a'))
+                                    .timeout(const Duration(seconds: 7));
                                 setState(() {
                                   if (statusSwitches[index] == 'on') {
                                     statusSwitches[index] = 'off';
@@ -172,12 +172,14 @@ class _ButtomPageState extends State<ButtomPage> {
                                 });
                               } on TimeoutException catch (e) {
                                 print('Ocorreu um erro: $e');
-                                final snackBar = SnackBar(
-                                  content: Text('Ocorreu um erro, tente novamente ou recarregue a página.'),
+                                const snackBar = SnackBar(
+                                  content: Text(
+                                      'Ocorreu um erro, tente novamente ou recarregue a página.'),
                                   duration: Duration(seconds: 2),
                                 );
-                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                
+                                // ignore: use_build_context_synchronously
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackBar);
                               }
                             },
                             child: Column(
