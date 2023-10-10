@@ -1,11 +1,8 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:on_off/constants/AppColors.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:on_off/repositories/api_repository.dart';
 
 class ButtomPage extends StatefulWidget {
@@ -17,8 +14,6 @@ class ButtomPage extends StatefulWidget {
 
 class _ButtomPageState extends State<ButtomPage> {
   final apiRepository = ApiRepository();
-  List<dynamic>? myJsonList;
-  List<bool> lightIsOn = [false, false, false];
   List<String> nameLight = [];
   int responseQtt = 0;
   List<String> statusSwitches = [];
@@ -29,39 +24,7 @@ class _ButtomPageState extends State<ButtomPage> {
     await apiRepository.changeSwitch(light);
   }
 
-  // Call API to get characteristics about Device
   Future<void> aboutDevice() async {
-    try {
-      final responseName = await http
-          .get(Uri.parse('http://${dotenv.env['IP']}:7777/status/1000ba1e43'))
-          .timeout(const Duration(seconds: 7));
-      if (responseName.statusCode == 200) {
-        var decodeResponse = jsonDecode(responseName.body) as List;
-        setState(() {
-          // Getting name os switches
-          nameLight =
-              decodeResponse.map((item) => item['Nome'] as String).toList();
-          // Getting switches quantity
-          responseQtt = decodeResponse.length;
-          // Getting status switches
-          statusSwitches =
-              decodeResponse.map((item) => item['switch'] as String).toList();
-        });
-      } else {
-        print(
-            'Erro ao se comunicar com o servidor. Status code: ${responseName.statusCode}');
-      }
-    } on TimeoutException catch (e) {
-      errorLoad = true;
-      responseQtt = 0;
-      print('Ocorreu um erro: $e');
-      setState(() {});
-    } catch (e) {
-      print('Ocorreu um erro: $e');
-    }
-  }
-
-  Future<void> aboutDevice2() async {
     final response = await apiRepository.aboutDevice();
     if (response.isNotEmpty) {
       setState(() {
