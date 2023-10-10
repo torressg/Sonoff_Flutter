@@ -29,8 +29,7 @@ class _ButtomPageState extends State<ButtomPage> {
     if (response.isNotEmpty) {
       setState(() {
         // Getting name os switches
-        nameLight =
-            response.map((item) => item['Nome'] as String).toList();
+        nameLight = response.map((item) => item['Nome'] as String).toList();
         // Getting switches quantity
         responseQtt = response.length;
         // Getting status switches

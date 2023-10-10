@@ -12,7 +12,8 @@ class ApiRepository {
     try {
       final responseChange = await API.changeSwitch(light);
       if (responseChange.statusCode != 200) {
-        print('Erro ao se comunicar com o servidor. Status code: ${responseChange.statusCode}');
+        print(
+            'Erro ao se comunicar com o servidor. Status code: ${responseChange.statusCode}');
       }
     } catch (e) {
       print('Ocorreu um erro: $e');
@@ -22,12 +23,13 @@ class ApiRepository {
   // Call API to get characteristics about Device
   Future<List<Map<String, dynamic>>> aboutDevice() async {
     try {
-      final response = await API.aboutDevice()
-          .timeout(const Duration(seconds: 7));
+      final response =
+          await API.aboutDevice().timeout(const Duration(seconds: 7));
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return (jsonDecode(response.body) as List).cast<Map<String, dynamic>>();
       } else {
-        print('Erro ao se comunicar com o servidor. Status code: ${response.statusCode}');
+        print(
+            'Erro ao se comunicar com o servidor. Status code: ${response.statusCode}');
         return [];
       }
     } on TimeoutException catch (e) {
