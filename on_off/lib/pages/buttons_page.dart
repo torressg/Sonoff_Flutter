@@ -95,7 +95,7 @@ class _ButtomPageState extends State<ButtomPage> {
                             alignment: Alignment.center,
                             child: const Text(
                               "Tentar novamente",
-                              style: TextStyle(fontSize: 14),
+                              style: TextStyle(fontSize: 12),
                             )),
                       )
                     ],
